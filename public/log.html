@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log Watcher</title>
+  <style>
+    body { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; margin: 0; padding: 16px; background: #0b0f14; color: #e6edf3; }
+    h1 { font-size: 16px; margin: 0 0 8px; color: #9ecbff; }
+    #status { font-size: 12px; margin-bottom: 8px; color: #8b949e; }
+    #logs { white-space: pre-wrap; word-break: break-word; display: grid; gap: 4px; }
+    .line { padding: 4px 6px; background: #11161d; border-radius: 6px; border: 1px solid #1f2630; }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const container = document.getElementById('logs');
+      const status = document.getElementById('status');
+      const maxLines = 10; // always show only the last 10 lines
+      const es = new EventSource('/events');
+      es.onopen = () => { status.textContent = 'connected'; };
+      es.onerror = () => { status.textContent = 'disconnected - retrying...'; };
+      es.onmessage = (e) => {
+        const text = e.data;
+        const div = document.createElement('div');
+        div.className = 'line';
+        div.textContent = text;
+        container.appendChild(div);
+        // Keep strictly last N lines visible
+        while (container.children.length > maxLines) {
+          container.removeChild(container.firstChild);
+        }
+        window.scrollTo(0, document.body.scrollHeight);
+      };
+    });
+  </script>
+  </head>
+<body>
+  <h1>Log Watcher</h1>
+  <div id="status">connecting...</div>
+  <div id="logs"></div>
+</body>
+</html>
