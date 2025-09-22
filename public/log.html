@@ -15,9 +15,12 @@
     document.addEventListener('DOMContentLoaded', function() {
       const container = document.getElementById('logs');
       const status = document.getElementById('status');
-      const maxLines = 10; // always show only the last 10 lines
+      // const maxLines = 10; // always show only the last 10 lines
       const es = new EventSource('/events');
-      es.onopen = () => { status.textContent = 'connected'; };
+      es.onopen = () => { 
+        status.textContent = 'connected';
+        container.innerHTML = "";
+       };
       es.onerror = () => { status.textContent = 'disconnected - retrying...'; };
       es.onmessage = (e) => {
         const text = e.data;
@@ -26,9 +29,9 @@
         div.textContent = text;
         container.appendChild(div);
         // Keep strictly last N lines visible
-        while (container.children.length > maxLines) {
-          container.removeChild(container.firstChild);
-        }
+        // while (container.children.length > maxLines) {
+        //   container.removeChild(container.firstChild);
+        // }
         window.scrollTo(0, document.body.scrollHeight);
       };
     });

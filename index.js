@@ -14,9 +14,9 @@ function emitSSE(res, line) {
 
 function broadcastLine(line) {
     // Maintain in-memory last 10 lines buffer
-    if (lastTenLinesBuffer.length >= 10) {
-        lastTenLinesBuffer.shift();
-    }
+    // if (lastTenLinesBuffer.length >= 10) {
+    //     lastTenLinesBuffer.shift();
+    // }
     lastTenLinesBuffer.push(line);
 
     for (const res of subscribers.values()) {
@@ -134,7 +134,7 @@ setInterval(() => {
     } catch (e) {
         // ignore
     }
-}, 1000);
+}, 5000);
 
 initTailer().catch(err => console.error('Failed to init tailer:', err));
 
