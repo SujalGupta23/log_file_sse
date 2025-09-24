@@ -55,6 +55,12 @@ async function readLastNLines(filePath, numLines) {
 }
 
 async function initTailer() {
+  try {
+    await fsPromise.access(logFilePath, fs.constants.F_OK); // check if file exists
+  } catch {
+    await fsPromise.writeFile(logFilePath, ""); // create it if missing
+  }
+
   const stats = await fsPromise.stat(logFilePath); //This is an async call to get metadata about the file
   currentOffset = stats.size; //this keeps a track of the last read data so the data isnt fully re read and can start reading from this point
   lastTenLineBuffer = await readLastNLines(logFilePath, 10);
@@ -122,6 +128,7 @@ function handleSSE(req, res) {
   }
   const id = Date.now() + Math.random().toString(36).slice(2);
   subscribers.set(id, res);
+  // console.log(id);
 
   req.on("close", () => {
     subscribers.delete(id);
@@ -135,7 +142,7 @@ setInterval(() => {
     fs.appendFileSync(logFilePath, `new data: ${counter}\n`);
     counter++;
   } catch (e) {}
-}, 1000);
+}, 5000);
 
 initTailer().catch((err) => console.error("Failed to init Tailer: ", err));
 
